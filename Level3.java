@@ -2,6 +2,7 @@ public class Level3 implements Level{
     
     private final int level;
     private int score;
+    private Menmon menmon;
 
     public Level3(){
         level = 3;

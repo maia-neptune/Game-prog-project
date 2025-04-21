@@ -1,4 +1,4 @@
-public class GameObject{
+public class Menmon extends GameObject{
     
     private int x;
     private int y;
@@ -6,7 +6,8 @@ public class GameObject{
     private int height;
     private String imagePath;
     
-    public GameObject(int x, int y, int width, int height, String imagePath){
+    public Menmon(int x, int y, int width, int height, String imagePath){
+        super(x, y, width, height, imagePath);
         this.x = x;
         this.y = y;
         this.width = width;
@@ -34,23 +35,4 @@ public class GameObject{
         this.imagePath = imagePath;
     }
     
-    public int getX(){
-        return this.x;
-    }
-    
-    public int getY(){
-        return this.y;
-    }
-    
-    public int getWidth(){
-        return this.width;
-    }
-    
-    public int getHeight(){
-        return this.height;
-    }
-    
-    public String getImagePath(){
-        return this.imagePath;
-    }
 }
