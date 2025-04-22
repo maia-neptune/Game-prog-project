@@ -1,36 +1,34 @@
+import java.awt.Graphics2D;
 
-import java.awt.Image;
-public class Level2 implements Level{
-    
+public class Level2 implements Level {
+
     private final int level;
     private int score;
-    ImageManager imageManager;
-    Image backgroundImage;
-    
+    private Background background;
 
-    public Level2(){
-        imageManager = new ImageManager();
-        level = 1;
-        score = 0;
+    public Level2(GamePanel panel) {
+        this.level = 1;
+        this.score = 0;
+        this.background = new Background(panel, "images/level1_bg1.png", 200);
     }
 
-    public void setBackground(){
-        backgroundImage = ImageManager.loadBufferedImage("images\\level2_bg.png");
+    public void drawBackground(Graphics2D g2) {
+        background.draw(g2);
     }
 
-    public Image getBackground(){
-        return this.backgroundImage;
+    public void moveBackground(int direction) {
+        background.move(direction);
     }
 
-    public void increaseScore(int n){
-        this.score = score + n;
+    public void increaseScore(int n) {
+        this.score += n;
     }
 
-    public int getScore(){
+    public int getScore() {
         return this.score;
     }
 
-    public int getLevel(){
+    public int getLevel() {
         return this.level;
     }
 }

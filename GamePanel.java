@@ -1,5 +1,5 @@
 import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.Graphics2D;
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel implements Runnable {
@@ -9,6 +9,8 @@ public class GamePanel extends JPanel implements Runnable {
     private boolean isRunning;
     private boolean isPaused;
     private int frameNumber;
+	private Cindy cindy;
+	private Fiddle fiddle;
 
     private Level[] levels;
     private int currentLevelIndex = 0;
@@ -16,9 +18,13 @@ public class GamePanel extends JPanel implements Runnable {
     public GamePanel() {
         // Initialize level array and load levels
         levels = new Level[3];
-        levels[0] = new Level1();
-        levels[1] = new Level2();
-        levels[2] = new Level3();
+
+        levels[0] = new Level1(this);
+        levels[1] = new Level2(this);
+        levels[2] = new Level3(this);
+
+		cindy = new Cindy(100, 290, 200, 200);
+		fiddle = new Fiddle(10,300,100,100);
     }
 
     public void createGameEntities() {
@@ -42,12 +48,30 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
-    public void gameUpdate() {
-   
-    }
+	public void gameUpdate() {
+		if (cindy != null) {
+			cindy.update();
+		}
+		if (fiddle != null && cindy != null) {
+			fiddle.update(cindy);
+		}
+		// if (checkCollisionCindyFiddle(cindy, fiddle)) {
+		// 	System.out.println("GAME OVER!");
+		// 	endGame();
+		// }
+	}
+	
 
     public void updateBat(int direction) {
-    
+		cindy.move(direction);
+		
+		if (levels[currentLevelIndex] instanceof Level1 level1) {
+			if (direction == 1) {
+				level1.moveBackground(1); // move right
+			} else if (direction == -1) {
+				level1.moveBackground(2); // move left
+			}
+		}
     }
 
     public void gameRender() {
@@ -56,14 +80,23 @@ public class GamePanel extends JPanel implements Runnable {
 
     @Override
     protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
+		super.paintComponent(g);
+		Graphics2D g2 = (Graphics2D) g;
+	
+		Level currentLevel = levels[currentLevelIndex];
+	
+		if (currentLevel instanceof Level1 level1) {
+			level1.drawBackground(g2);
+		}
 
-        Level currentLevel = levels[currentLevelIndex];
-        Image bg = currentLevel.getBackground();
+		
+		if (cindy != null) {
+			cindy.draw(g2);
+		}
 
-        if (bg != null) {
-            g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
-        }
+		if(fiddle != null){
+			fiddle.draw(g2);
+		}
 
     }
 
@@ -96,7 +129,7 @@ public class GamePanel extends JPanel implements Runnable {
     //Restart current level
     public void restartLevel() {
         Level current = levels[currentLevelIndex];
-        levels[currentLevelIndex] = new Level1(); // or Level2/3 accordingly
+        levels[currentLevelIndex] = new Level1(this); // or Level2/3 accordingly
     }
 
     //Set a specific level
@@ -105,4 +138,17 @@ public class GamePanel extends JPanel implements Runnable {
             currentLevelIndex = levelIndex;
         }
     }
+
+	public Cindy getCindy() {
+		return cindy;
+	}
+
+	private boolean checkCollisionCindyFiddle(Cindy c, Fiddle f) {
+		return c.getX() < f.getX() + f.getWidth() &&
+			   c.getX() + c.getWidth() > f.getX() &&
+			   c.getY() < f.getY() + f.getHeight() &&
+			   c.getY() + c.getHeight() > f.getY();
+	}
+	
+	
 }

@@ -1,10 +1,11 @@
-import javax.swing.ImageIcon;
-import java.awt.Image;
 import java.awt.Graphics2D;
-import javax.imageio.ImageIO;
+import java.awt.Image;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 /**
    The ImageManager class manages the loading and processing of images.
@@ -55,6 +56,25 @@ public class ImageManager {
 
     		return copy; 
 	  }
+
+	  public static BufferedImage flipVertically(BufferedImage image) {
+		if (image == null) return null;
+	
+		AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
+		tx.translate(0, -image.getHeight());
+	
+		BufferedImage flipped = new BufferedImage(
+			image.getWidth(),
+			image.getHeight(),
+			BufferedImage.TYPE_INT_ARGB
+		);
+	
+		Graphics2D g = flipped.createGraphics();
+		g.drawImage(image, tx, null);
+		g.dispose();
+	
+		return flipped;
+	}
 
 }
 
