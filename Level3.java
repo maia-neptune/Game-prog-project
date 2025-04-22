@@ -1,12 +1,25 @@
+
+import java.awt.Image;
 public class Level3 implements Level{
     
     private final int level;
     private int score;
-    private Menmon menmon;
+    ImageManager imageManager;
+    Image backgroundImage;
+    
 
     public Level3(){
-        level = 3;
+        imageManager = new ImageManager();
+        level = 1;
         score = 0;
+    }
+
+    public void setBackground(){
+        backgroundImage = ImageManager.loadBufferedImage("images\\level3_bg.png");
+    }
+
+    public Image getBackground(){
+        return this.backgroundImage;
     }
 
     public void increaseScore(int n){

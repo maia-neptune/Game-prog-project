@@ -1,96 +1,108 @@
+import java.awt.Graphics;
+import java.awt.Image;
 import javax.swing.JPanel;
 
-/**
-   A component that displays all the game entities
-*/
+public class GamePanel extends JPanel implements Runnable {
 
-public class GamePanel extends JPanel
-		       implements Runnable {
+    private SoundManager soundManager;
+    private Thread gameThread;
+    private boolean isRunning;
+    private boolean isPaused;
+    private int frameNumber;
 
-	private SoundManager soundManager;
-	private Thread gameThread;
-	private boolean isRunning;
-	private boolean isPaused;
-	private int frameNumber;
+    private Level[] levels;
+    private int currentLevelIndex = 0;
 
-	private Level levels[];
+    public GamePanel() {
+        // Initialize level array and load levels
+        levels = new Level[3];
+        levels[0] = new Level1();
+        levels[1] = new Level2();
+        levels[2] = new Level3();
+    }
 
-	public GamePanel () {
-	levels[0] = new Level1();
-	levels[1] = new Level2();
-	levels[2] = new Level3();
-	}
-	
+    public void createGameEntities() {
+     
+    }
 
+    public void run() {
+        frameNumber = 0;
+        try {
+            isRunning = true;
+            while (isRunning) {
+                if (!isPaused) {
+                    gameUpdate();
+                }
+                gameRender(); // triggers repaint
+                frameNumber++;
+                Thread.sleep(50); // ~20 FPS
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
-	public void createGameEntities() {
-	
-	
+    public void gameUpdate() {
+   
+    }
 
-	}
+    public void updateBat(int direction) {
+    
+    }
 
+    public void gameRender() {
+        repaint(); // triggers paintComponent()
+    }
 
-	public void run () {
-		frameNumber=0;
-		try {
-			isRunning = true;
-			while (isRunning) {
-				if (!isPaused)
-					gameUpdate();
-				gameRender();
-				frameNumber++;
-				Thread.sleep (50);	
-			}
-		}
-		catch(InterruptedException e) {}
-	}
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
 
+        Level currentLevel = levels[currentLevelIndex];
+        Image bg = currentLevel.getBackground();
 
-	public void gameUpdate() {
+        if (bg != null) {
+            g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
+        }
 
+    }
 
-	}
+    public void startGame() {
+        createGameEntities();
+        gameThread = new Thread(this);
+        gameThread.start();
+    }
 
+    public void pauseGame() {
+        if (isRunning) {
+            isPaused = !isPaused;
+        }
+    }
 
-	public void updateBat (int direction) {
-	
-	}
+    public void endGame() {
+        isRunning = false;
+        if (soundManager != null) {
+            soundManager.stopClip("snore");
+        }
+    }
 
+    // Move to next level
+    public void nextLevel() {
+        if (currentLevelIndex < levels.length - 1) {
+            currentLevelIndex++;
+        }
+    }
 
-	public void gameRender() {
+    //Restart current level
+    public void restartLevel() {
+        Level current = levels[currentLevelIndex];
+        levels[currentLevelIndex] = new Level1(); // or Level2/3 accordingly
+    }
 
-
-	}
-
-
-
-	public void startGame() {				// initialise and start the game thread 
-
-		createGameEntities();
-		gameThread = new Thread (this);		
-		gameThread.start();
-
-	
-
-
-	}
-
-
-	public void pauseGame() {				// pause the game (don't update game entities)
-		if (isRunning) {
-			if(isPaused)
-				isPaused = false;
-			else
-				isPaused = true;
-		}
-	}
-
-
-	public void endGame() {	
-		isRunning = false;
-	
-		soundManager.stopClip ("snore");
-	}
-
-
+    //Set a specific level
+    public void setLevel(int levelIndex) {
+        if (levelIndex >= 0 && levelIndex < levels.length) {
+            currentLevelIndex = levelIndex;
+        }
+    }
 }
