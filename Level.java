@@ -6,4 +6,5 @@ public interface Level {
     public void increaseScore(int n);
     public int getScore();
 
+    
 }

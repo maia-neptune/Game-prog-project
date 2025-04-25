@@ -32,7 +32,7 @@ public class GameWindow extends JFrame
 		setTitle ("Stealthy Monkey");
 		setSize (1000, 750);
 
-		statusBarL = new JLabel ("Application Status: ");
+		statusBarL = new JLabel ("Cindy's Score: ");
 		keyL = new JLabel("Key Pressed: ");
 		mouseL = new JLabel("Location of Mouse Click: ");
 
@@ -63,7 +63,7 @@ public class GameWindow extends JFrame
 		mainPanel = new JPanel(new BorderLayout());
 
 		gamePanel = new GamePanel();
-        gamePanel.setPreferredSize(new Dimension(1000, 550));
+        gamePanel.setPreferredSize(new Dimension(1000, 800));
 
 		JPanel infoPanel = new JPanel();
 		GridLayout gridLayout = new GridLayout(3, 2);
@@ -82,7 +82,7 @@ public class GameWindow extends JFrame
 		JPanel buttonPanel = new JPanel();
 		gridLayout = new GridLayout(1, 4);
 		buttonPanel.setLayout(gridLayout);
-		buttonPanel.setPreferredSize(new Dimension(1000, 60));
+		buttonPanel.setPreferredSize(new Dimension(800, 60));
 
 		buttonPanel.add (startB);
 		buttonPanel.add (pauseB);
@@ -100,8 +100,14 @@ public class GameWindow extends JFrame
 		gamePanel.addMouseListener(this);
 		mainPanel.addKeyListener(this);
 
-		mainPanel.setFocusable(true);
-		mainPanel.requestFocusInWindow();
+		// mainPanel.setFocusable(true);
+		// mainPanel.requestFocusInWindow();
+
+		// Let gamePanel handle key input
+		gamePanel.setFocusable(true);
+		gamePanel.addKeyListener(this);
+		gamePanel.requestFocusInWindow();
+
 
 		c = getContentPane();
 		c.add(mainPanel);
@@ -111,16 +117,25 @@ public class GameWindow extends JFrame
 		setVisible(true);
 
 		statusBarTF.setText("Application started.");
+
+		Timer timer = new Timer(500, new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				if (gamePanel != null && gamePanel.gameStarted()) {
+					statusBarTF.setText("Score: " + gamePanel.getScore());
+				}
+			}
+		});
+		timer.start();
 	}
 
 	public void actionPerformed(ActionEvent e) {
 
 		String command = e.getActionCommand();
-		
-		statusBarTF.setText(command + " button clicked.");
+
 
 		if (command.equals(startB.getText())) {
 			gamePanel.startGame();
+			gamePanel.requestFocusInWindow();
 		}
 
 		if (command.equals(pauseB.getText())) {
@@ -142,11 +157,11 @@ public class GameWindow extends JFrame
 		keyTF.setText(keyText + " pressed.");
 
 		if (keyCode == KeyEvent.VK_LEFT) {
-			gamePanel.getCindy().move(-1);
+			gamePanel.updateBat(-1);
 		}
 
 		if (keyCode == KeyEvent.VK_RIGHT) {
-			gamePanel.getCindy().move(1);
+			gamePanel.updateBat(1);
 
 		}
 
@@ -155,8 +170,11 @@ public class GameWindow extends JFrame
 		}
 
 		if (keyCode == KeyEvent.VK_DOWN) {
-		
+			if(gamePanel.getLevel() == 2)
+			gamePanel.downPressed = true;
+			gamePanel.updateBat(3);
 		}
+
 		if(keyCode == KeyEvent.VK_SPACE){
 		
 		}
@@ -168,11 +186,11 @@ public class GameWindow extends JFrame
 		keyTF.setText(keyText + " released.");
 
 		if (keyCode == KeyEvent.VK_LEFT) {
-			gamePanel.getCindy().move(0);
+			gamePanel.updateBat(0);
 		}
 
 		if (keyCode == KeyEvent.VK_RIGHT) {
-			gamePanel.getCindy().move(0);
+			gamePanel.updateBat(0);
 		}
 
 		if (keyCode == KeyEvent.VK_UP) {
@@ -180,7 +198,7 @@ public class GameWindow extends JFrame
 		}
 
 		if (keyCode == KeyEvent.VK_DOWN) {
-			
+			gamePanel.downPressed = false;
 		}
 	}
 

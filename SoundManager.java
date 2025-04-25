@@ -12,10 +12,18 @@ public class SoundManager {				// a Singleton class
 	private SoundManager () {
 		clips = new HashMap<String, Clip>();
 
-		Clip clip = loadClip("sounds/daddyMonkeySnore.wav");	// played from start of the game
-		clips.put("snore", clip);
+		Clip clip = loadClip("sounds/level1_and_2.wav");	// played from start of the game
+		clips.put("level1_2", clip);
+		Clip clip1 = loadClip("sounds/cannonball.wav");
+		clips.put("cannon", clip1);
+		Clip clip2 = loadClip("sounds/cattreat.wav");
+		clips.put("cattreat", clip2);
+		Clip clip3 = loadClip("sounds/level3_bg.wav");
+		clips.put("level3", clip3);
 
-	}
+		}
+
+
 
 
 	public static SoundManager getInstance() {	// class method to retrieve instance of Singleton
@@ -77,6 +85,14 @@ public class SoundManager {				// a Singleton class
 		float gain = (range * volume) + gainControl.getMinimum();
 
 		gainControl.setValue(gain);
+	}
+
+		public void stopAll() {
+		for (Clip clip : clips.values()) {
+			if (clip.isRunning()) {
+				clip.stop();
+			}
+		}
 	}
 	
 }

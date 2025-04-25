@@ -5,6 +5,9 @@ public class Fiddle extends GameObject {
 
     private int x;
     private int y;
+
+    private int worldX = 10; 
+
     private int width;
     private int height;
 
@@ -20,7 +23,7 @@ public class Fiddle extends GameObject {
     private double yVelocity = 0;
     private final double gravity = 0.8;
     private final double jumpStrength = -12;
-    private final int groundY = 300;
+    private final int groundY = 370;
 
     public Fiddle(int x, int y, int width, int height) {
         super(x, y, width, height, null);
@@ -40,52 +43,64 @@ public class Fiddle extends GameObject {
     }
 
     private void createAnimations() {
-        walkingAnimation = new Animation(false);
+        walkingAnimation = new Animation(true);
         walkingAnimation.addFrame(fiddle, 100);
-        walkingAnimation.addFrame(fiddleRun, 100);
+        walkingAnimation.addFrame(fiddleRun,200);
 
         jumpingAnimation = new Animation(false);
         jumpingAnimation.addFrame(fiddle, 100);
         jumpingAnimation.addFrame(jumpImage, 100);
     }
 
-    // Automatically follows Cindy and jumps if she's above
-    public void update(Cindy cindy) {
-        if (cindy.getX() > x) {
-            x += 2;
-            direction = 1;
-        } else if (cindy.getX() < x) {
-            x -= 2;
-            direction = -1;
-        } else {
-            direction = 0;
-        }
-
+    public void move(int direction) {
+        this.direction = direction;
+        x += direction * 4;
+        worldX += direction * 4;
+    
         if (direction != 0) {
-            walkingAnimation.start();
+            if (!walkingAnimation.isStillActive()) {
+                walkingAnimation.start();
+            }
         } else {
             walkingAnimation.stop();
         }
+    }
+    
 
-        if (!jumping && cindy.getY() < y - 40) {
+    // Automatically follows Cindy and jumps if she's above
+    public void update(Cindy cindy) {
+        // Use worldX difference to always keep chasing
+        int worldDistance = cindy.getWorldX() - this.worldX;
+    
+        if (worldDistance > 0) {
+            move(1); // move right
+        } else if (worldDistance < 0) {
+            move(-1); // move left
+        } else {
+            move(0); // stop if directly aligned
+        }
+    
+    
+        if (!jumping && cindy.getY() < groundY - 10 && Math.abs(worldDistance) < 150) {
             jump();
         }
-
+    
+    
         if (jumping) {
             yVelocity += gravity;
             y += (int) yVelocity;
-
+    
             if (y >= groundY) {
                 y = groundY;
                 yVelocity = 0;
                 jumping = false;
             }
         }
-
+    
         walkingAnimation.update();
         jumpingAnimation.update();
     }
-
+    
     public void jump() {
         if (!jumping) {
             yVelocity = jumpStrength;
@@ -93,23 +108,35 @@ public class Fiddle extends GameObject {
         }
     }
 
-    public void draw(Graphics g) {
+    public void draw(Graphics g, Cindy cindy) {
+        int fiddleScreenX = worldX - cindy.getWorldX() + cindy.getX();
         Image currentImage;
-
+    
         if (jumping && jumpingAnimation != null && jumpingAnimation.isStillActive()) {
             currentImage = jumpingAnimation.getImage();
         } else if (direction != 0 && walkingAnimation != null && walkingAnimation.isStillActive()) {
             currentImage = walkingAnimation.getImage();
         } else {
-            currentImage = (direction == -1) ? fiddle : fiddleRun;
-        }
-
-        g.drawImage(currentImage, x, y, width, height, null);
+            currentImage = fiddle;
+ } 
+    
+        g.drawImage(currentImage, fiddleScreenX, y, width, height, null);
     }
 
-    // Getters for collision detection
+    public int getWorldX() {
+        return worldX;
+    }
+
+    public void setWorldX(int worldX) {
+        this.worldX = worldX;
+    }
+
+    @Override
     public int getX() { return x; }
+    @Override
     public int getY() { return y; }
+    @Override
     public int getWidth() { return width; }
+    @Override
     public int getHeight() { return height; }
-}
+}  
