@@ -36,7 +36,7 @@ public class Level1 implements Level {
 
 
     public void drawBackground(Graphics2D g2, Cindy cindy) {
-        if (cindy.getWorldX() <2000) {
+        if (cindy.getWorldX() <5000) {
             background.draw(g2);
         } else {
             background2.draw(g2);

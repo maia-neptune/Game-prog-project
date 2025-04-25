@@ -52,7 +52,7 @@ public class GamePanel extends JPanel implements Runnable {
 private ImageIcon level3SecondaryGif;
 private boolean showLevel3SecondaryIntro = false;
 private long level3StartTime = 0;
-private final int LEVEL3_SECONDARY_INTRO_DELAY_MS = 20_000; // 20 seconds
+private final int LEVEL3_SECONDARY_INTRO_DELAY_MS = 30_000; // 20 seconds
 private final int LEVEL3_SECONDARY_INTRO_DURATION_MS = 5000;
 private long level3SecondaryIntroStartTime = 0;
 
@@ -203,7 +203,7 @@ private long level3SecondaryIntroStartTime = 0;
             cindy.setLevelIndex(0);
             level1.update(cindy, fiddle);
             
-            if (cindy.getWorldX()>=2000 && !checkCollisionCindyFiddle(cindy, fiddle)) {
+            if (cindy.getWorldX()>=5000 && !checkCollisionCindyFiddle(cindy, fiddle)) {
                 System.out.println("Level 1 completed!");
                 nextLevel(); // Move to next level
                 cindy.setLevelIndex(1);
