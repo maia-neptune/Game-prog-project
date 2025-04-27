@@ -28,8 +28,8 @@ public class Level1 implements Level {
         this.level = 0;
         this.score = 0;
         this.panel = panel;
-        this.background = new Background(panel, "images/level1_bg1.png", 10);
-        this.background2 = new Background(panel, "images/level1_bg2.png", 10);
+        this.background = new Background(panel, "images/level1_bg1.png", 200);
+        this.background2 = new Background(panel, "images/level1_bg2.png", 200);
         this.catTreats = new ArrayList<>();
         this.lastFiddleBoostTime = System.currentTimeMillis();
     }
@@ -39,7 +39,8 @@ public class Level1 implements Level {
         if (cindy.getWorldX() <5000) {
             background.draw(g2);
         } else {
-            background2.draw(g2);
+            this.background = background2;
+            background.draw(g2);
         }
 
         for (CatTreat treat : catTreats) {
@@ -56,14 +57,14 @@ public class Level1 implements Level {
     public void update(Cindy cindy, Fiddle fiddle) {
         long now = System.currentTimeMillis();
 
-        // === Treat Spawning ===
+        // Treats
         if (treatsSpawned < MAX_TREATS && now - lastTreatSpawnTime >= TREAT_INTERVAL) {
             spawnTreat(cindy.getWorldX());
             lastTreatSpawnTime = now;
             treatsSpawned++;
         }
 
-        // === Wind Gusts ===
+        // Wind
         if (!gustActive && now - lastWindGustTime > 15000) {
             gustActive = true;
             gustStartTime = now;
@@ -81,6 +82,7 @@ public class Level1 implements Level {
             if (treat.checkCollision(cindy)) {
                 it.remove();
                 cindy.addScore(2);
+                SoundManager.getInstance().playClip("cattreat", false);
             }
         }
         if (now - lastFiddleBoostTime >= FIDDLE_BOOST_INTERVAL) {
@@ -94,7 +96,7 @@ public class Level1 implements Level {
     private void spawnTreat(int cindyWorldX) {
         Random rand = new Random();
         int x = cindyWorldX + 200;
-        int y = rand.nextInt(41) + 230;
+        int y = 230 + rand.nextInt(31);
         catTreats.add(new CatTreat(x, y, 40, 40));
         System.out.println("Spawned treat at X: " + x); 
     }

@@ -29,7 +29,7 @@ public class GameWindow extends JFrame
 	@SuppressWarnings({"unchecked"})
 	public GameWindow() {
  
-		setTitle ("Stealthy Monkey");
+		setTitle ("Cindy's Adventures");
 		setSize (1000, 750);
 
 		statusBarL = new JLabel ("Cindy's Score: ");

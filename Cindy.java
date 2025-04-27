@@ -4,7 +4,7 @@ import java.awt.Image;
 public class Cindy extends GameObject {
 
     private int x, y, width, height;
-    private Animation walkingAnimation, jumpingAnimation;
+    private Animation walkingAnimation, jumpingAnimation, walkinglevel3Animation;
 
     private Image footRight, footLeft, jumpImage, crouchImage;
     private Image  tfootR, tfootL;
@@ -58,6 +58,10 @@ public class Cindy extends GameObject {
         jumpingAnimation.addFrame(crouchImage, 100);
         jumpingAnimation.addFrame(jumpImage, 100);
 
+        walkinglevel3Animation = new Animation(true);
+        walkinglevel3Animation.addFrame(tfootR, 100);
+        walkinglevel3Animation.addFrame(tfootL, 100);
+
 
     }
 
@@ -90,10 +94,17 @@ public class Cindy extends GameObject {
                     currentImage = (direction == -1) ? footLeft : footRight;
                 }
             }
-            case 1, 2 -> currentImage = level2Image;
+            case 1 -> currentImage = level2Image;
+            case 2 -> { 
+                if (direction != 0 && walkinglevel3Animation != null && walkinglevel3Animation.isStillActive()) {
+                    currentImage = walkinglevel3Animation.getImage();
+                } else {
+                    currentImage = level3Image; // Standing still image for Level 3
+                }
+            }
             default -> currentImage = footRight;
         }
-
+    
         g.drawImage(currentImage, x, y, width, height, null);
     }
 
@@ -114,6 +125,8 @@ public class Cindy extends GameObject {
         }
 
         if(level_index == 2){
+
+          
         if(direction == 3){
             this.y = y + 10;
         }
@@ -124,6 +137,12 @@ public class Cindy extends GameObject {
         if(direction == -1){
             this.x = x - 10;
             this.y = y + 10;
+        }
+
+        if (direction != 0 && walkinglevel3Animation != null) {
+            if (!walkinglevel3Animation.isStillActive()) walkinglevel3Animation.start();
+        } else {
+            walkinglevel3Animation.stop();
         }
         }
 
@@ -140,6 +159,10 @@ public class Cindy extends GameObject {
 
     public int getScore(){
         return this.score;
+    }
+
+    public void setScore(int num){ //for level 3 to keep nonnegative
+        this.score = num;
     }
 
     public void addScore(int score) { 

@@ -9,7 +9,7 @@ public class Menmon extends GameObject {
     private ArrayList<Beam> beams;
 
     private int beamCooldown = 0;
-    private final int MAX_BEAMS = 10;
+    private final int MAX_BEAMS = 5;
     private int beamsFired = 0;
 
     private Image leftFoot;
@@ -65,12 +65,11 @@ public class Menmon extends GameObject {
         if (beamCooldown == 0 && beamsFired < MAX_BEAMS) {
             beams.add(new Beam(cindy.getX(), y + height));
             beamsFired++;
-            beamCooldown = 50;
+            beamCooldown = 40;
         }
 
         if (beamCooldown > 0) beamCooldown--;
 
-        // Update and remove off-screen beams
         Iterator<Beam> it = beams.iterator();
         while (it.hasNext()) {
             Beam b = it.next();

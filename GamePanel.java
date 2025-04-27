@@ -56,6 +56,8 @@ private final int LEVEL3_SECONDARY_INTRO_DELAY_MS = 30_000; // 20 seconds
 private final int LEVEL3_SECONDARY_INTRO_DURATION_MS = 5000;
 private long level3SecondaryIntroStartTime = 0;
 
+private boolean level3won = false;
+
     private int lives = 3; 
     private BufferedImage heartImage; 
     private final int HEART_SIZE = 40;  
@@ -76,7 +78,7 @@ private long level3SecondaryIntroStartTime = 0;
         menmon = new Menmon(450, 10, 200, 200, "images/menmon.png");
         beams = new ArrayList<>();
 
-        screenBuffer = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_RGB);
+        screenBuffer = new BufferedImage(1000, 800, BufferedImage.TYPE_INT_RGB);
 
         try {
             startScreenImage = ImageManager.loadBufferedImage("images/start.png");
@@ -120,15 +122,6 @@ private long level3SecondaryIntroStartTime = 0;
             SoundManager.getInstance().playClip("level1_2", false);
         }
 
-        if(currentLevelIndex == 2) {
-            menmon.setY(100);
-          
-                level3Gif = new ImageIcon("images/menmon_open.gif");
-                showLevel3Intro = true;
-                level3IntroStartTime = System.currentTimeMillis();
-        
-                SoundManager.getInstance().playClip("level3", true);
-        }
 
         if (currentLevelIndex == 2) {
             menmon.setY(100);
@@ -215,15 +208,15 @@ private long level3SecondaryIntroStartTime = 0;
         // Level 2 Update Logic (Dimjack and cannonballs)
         if (levels[currentLevelIndex] instanceof Level2 level2) {
             cindy.setY(400);
-            if (cindy != null && cindy.getLevelIndex() == 1) cindy.update(); // Update Cindy
+            if (cindy != null && cindy.getLevelIndex() == 1) cindy.update(); // update Cindy
             if (dimjack != null) { 
-                dimjack.update(); // Update Dimjack's movement
+                dimjack.update(); // update Dimjack's movement
     
                 ArrayList<Cannonball> balls = dimjack.getCannonballs();
                 balls.removeIf(ball -> {
                     if (ball.checkCollision(cindy)) {
                         lives--;
-                        SoundManager.getInstance().playClip("cannonball", false); // Play sound on collision
+                        SoundManager.getInstance().playClip("cannon", false); // play sound on collision
                         return true;
                     }
                     return false;
@@ -246,11 +239,12 @@ private long level3SecondaryIntroStartTime = 0;
             long now = System.currentTimeMillis();
 
 
-if (!level3SecondaryGifShown && (now - level3StartTime >= LEVEL3_SECONDARY_INTRO_DELAY_MS) && lives > 0) {
-    showLevel3SecondaryIntro = true;
-    level3SecondaryIntroStartTime = now;
-    level3SecondaryGifShown = true;
-}
+        if (!level3SecondaryGifShown && (now - level3StartTime >= LEVEL3_SECONDARY_INTRO_DELAY_MS) && lives > 0) {
+            showLevel3SecondaryIntro = true;
+            level3SecondaryIntroStartTime = now;
+            level3SecondaryGifShown = true;
+            level3won = true;
+            }
             if (cindy != null && cindy.getLevelIndex() == 2) cindy.update(); // Update Cindy in level 3
     
 
@@ -263,11 +257,25 @@ if (!level3SecondaryGifShown && (now - level3StartTime >= LEVEL3_SECONDARY_INTRO
                 }
             }
     
-            // Remove off-screen or collided beams
+            // remove off-screen or collided beams
             beams.removeIf(beam -> {
                 beam.update();
-                return beam.isOffScreen() || beam.checkCollision(cindy);
+                if (beam.checkCollision(cindy)) {
+                    cindy.addScore(-2);  
+                    if (cindy.getScore() < 0) cindy.setScore(0); // prevent negative score
+                    return true; 
+                }
+                return beam.isOffScreen(); 
             });
+
+            if (level3won && cindy.getScore() <= 0) {
+                isRunning = false; 
+                isPaused = true;
+                SoundManager.getInstance().stopAll();
+            }   
+            else if(cindy.getScore() <= 0){
+                endGame();
+            }         
         }
 
         if(lives <= 0){
@@ -277,7 +285,6 @@ if (!level3SecondaryGifShown && (now - level3StartTime >= LEVEL3_SECONDARY_INTRO
     
     public void updateBat(int direction) {
         if (isPaused) return;
-
 
 // Level 1 Update Logic
         if (levels[currentLevelIndex] instanceof Level1 level1) {
@@ -331,8 +338,14 @@ if (!level3SecondaryGifShown && (now - level3StartTime >= LEVEL3_SECONDARY_INTRO
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        if (!gameStarted && startScreenImage != null) {
+            g.drawImage(startScreenImage, 0, 0, getWidth(), getHeight(), null);
+            return; 
+        }   
         Graphics2D g2Buffer = screenBuffer.createGraphics();
         g2Buffer.clearRect(0, 0, screenBuffer.getWidth(), screenBuffer.getHeight());
+
 
     
         if (levels[currentLevelIndex] instanceof Level1 level1) {
@@ -369,20 +382,15 @@ if (!level3SecondaryGifShown && (now - level3StartTime >= LEVEL3_SECONDARY_INTRO
 
         if (levels[currentLevelIndex] instanceof Level3 level3) {
             if (showLevel3SecondaryIntro && level3SecondaryGif != null) {
-                long now = System.currentTimeMillis();
-                if (now - level3SecondaryIntroStartTime < LEVEL3_SECONDARY_INTRO_DURATION_MS) {
-                    g.drawImage(level3SecondaryGif.getImage(),
-                                (getWidth() - level3SecondaryGif.getIconWidth()) / 2,
-                                (getHeight() - level3SecondaryGif.getIconHeight()) / 2,
-                                this);
-                    return; 
-                } else {
-                    showLevel3SecondaryIntro = false;
-                    isRunning = false;  
-                    isPaused = true; 
-                    return;
-                }
+                g.drawImage(level3SecondaryGif.getImage(),
+                            (getWidth() - level3SecondaryGif.getIconWidth()) / 2,
+                            (getHeight() - level3SecondaryGif.getIconHeight()) / 2,
+                            this);
+                isRunning = false; 
+                isPaused = true;
+                return;
             }
+            
             
             // If not showing secondary, continue normal
             if (showLevel3Intro && level3Gif != null) {
@@ -411,13 +419,9 @@ if (!level3SecondaryGifShown && (now - level3StartTime >= LEVEL3_SECONDARY_INTRO
         g.drawImage(screenBuffer, 0, 0, this);
         g2Buffer.dispose();
 
-        if (!gameStarted && startScreenImage != null) {
-            g.drawImage(startScreenImage, 0, 0, getWidth(), getHeight(), null);
-            return; 
-        } 
 
         if (isPaused) {
-            g.drawString("Paused", getWidth() / 2 - 50, getHeight() / 2);
+            g.drawString("PAUSED GAME, PRESS PAUSE TO RESUME.", getWidth() / 2 - 50, getHeight() / 2);
         }
         
         if (gameOver && gameOverImage != null) {
@@ -547,8 +551,4 @@ if (!level3SecondaryGifShown && (now - level3StartTime >= LEVEL3_SECONDARY_INTRO
     }
     
     
-
-    public int whereIsCindy() {
-        return cindy.getX();
-    }
 }

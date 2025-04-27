@@ -8,8 +8,8 @@ public class Level2 implements Level {
     private final int level;
     private int score;
     private Background background;
-     private ArrayList<CatTreat> catTreats = new ArrayList<>();
-     private long lastTreatTime = 0;
+    private ArrayList<CatTreat> catTreats = new ArrayList<>();
+    private long lastTreatTime = 0;
 
     private final int TREAT_INTERVAL = 4000; // 4 seconds
     private final int MAX_TREATS = 10;
@@ -47,6 +47,7 @@ public class Level2 implements Level {
         if (it.next().checkCollision(cindy)) {
             it.remove();
            cindy.addScore(2);
+           SoundManager.getInstance().playClip("cattreat", false);
         }
     }
 }

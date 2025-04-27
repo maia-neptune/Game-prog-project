@@ -13,7 +13,7 @@ public class Level3 implements Level {
     }
 
     public void drawBackground(Graphics2D g2) {
-        background.draw(g2); // no need for scrollY here
+        background.draw(g2); 
     }
 
     public void scrollVertically(int dy) {
@@ -21,7 +21,7 @@ public class Level3 implements Level {
     }
 
     public void moveBackground(int direction) {
-        background.move(direction); // for horizontal (if ever needed)
+        background.move(direction); 
     }
 
     public Background getBackground() {
